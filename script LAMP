@@ -1,0 +1,68 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Por favor, execute como root"
+  exit 1
+fi
+
+echo "Atualizando pacotes..."
+apt update && apt upgrade -y
+
+sleep 2
+
+echo "Instalando Apache..."
+apt install -y apache2
+
+sleep 2
+
+echo "Habilitando e iniciando Apache..."
+systemctl enable apache2
+systemctl start apache2
+
+sleep 2
+
+echo "Instalando MariaDB (MySQL)..."
+apt install -y mariadb-server mariadb-client
+
+sleep 2
+
+echo "Habilitando e iniciando MariaDB..."
+systemctl enable mariadb
+systemctl start mariadb
+
+sleep 2
+
+echo "Executando segurança inicial do MariaDB..."
+mysql_secure_installation <<EOF
+
+y
+root
+root
+y
+y
+y
+y
+EOF
+
+echo "Instalando PHP e módulos comuns..."
+apt install -y php libapache2-mod-php php-mysql php-cli php-curl php-gd php-mbstring php-xml php-zip
+
+sleep 2
+
+echo "Reiniciando Apache para aplicar o PHP..."
+systemctl restart apache2
+
+sleep 2
+
+echo "Criando arquivo de teste PHP..."
+echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+
+sleep 2
+
+echo "Corrigindo permissões do Apache..."
+chown -R www-data:www-data /var/www/html
+
+sleep 2
+
+echo "Instalação do LAMP concluída!"
+echo "Acesse http://localhost/info.php para verificar se o PHP está funcionando."
