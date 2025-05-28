@@ -1,0 +1,54 @@
+#!/bin/bash
+
+
+PASTA_COMPARTILHADA="/home/iftm/compartilhada"
+CONFIG_SAMBA="/etc/samba/smb.conf"
+GRUPO_TRABALHO="WORKGROUP"
+IP_SERVIDOR="192.168.21.67"
+
+
+echo " Criando a pasta compartilhada em $PASTA_COMPARTILHADA..."
+mkdir -p "$PASTA_COMPARTILHADA"
+
+
+echo " Alterando permissões para permitir acesso ao Samba..."
+chmod 777 "$PASTA_COMPARTILHADA"
+
+
+echo " Criando backup do arquivo de configuração do Samba..."
+sudo cp "$CONFIG_SAMBA" "$CONFIG_SAMBA.bak"
+
+
+echo " Configurando o Samba para o grupo de trabalho '$GRUPO_TRABALHO' e IP '$IP_SERVIDOR'..."
+
+
+sudo bash -c "cat << EOF >> $CONFIG_SAMBA
+
+[global]
+   workgroup = $GRUPO_TRABALHO
+   server string = Samba Server
+   netbios name = $IP_SERVIDOR
+   security = share
+   map to guest = bad user
+   dns proxy = no
+
+[compartilhada]
+   path = $PASTA_COMPARTILHADA
+   browseable = yes
+   read only = no
+   guest ok = yes
+   force user = nobody
+   force group = nogroup
+   create mask = 0777
+   directory mask = 0777
+EOF"
+
+
+echo " Reiniciando o serviço do Samba..."
+sudo systemctl restart smbd
+
+# Exibindo a configuração
+echo " Configuração do Samba concluída!"
+echo " A pasta '$PASTA_COMPARTILHADA' agora está compartilhada!"
+echo " O grupo de trabalho é: $GRUPO_TRABALHO"
+echo " O IP do seu servidor Samba é: $IP_SERVIDOR"
