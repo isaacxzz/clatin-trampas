@@ -1,0 +1,19 @@
+#!/bin/bash
+
+sudo apt-get update
+sudo apt-get install -y openssh-server
+service ssh status
+echo "ssh iftm@192.168.24.45"
+#esse é o usuário da maquina que eu fiz o script por isso dei o exemplo dele no echo,
+
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.old
+sudo nano -c /etc/ssh/sshd_config
+
+sudo sshd -t
+
+echo "PRONTO, para acessar outra maquina via ssh digite o usuário@ip da maquina"
+
+sleep 2
+
+echo "USANDO O SCP voce podee copiar um arquivo do hot remotamente usando essa base:"
+echo "scp usuário@ip:/home/iftm/arquivo.txt /home/seu_usuario/"
