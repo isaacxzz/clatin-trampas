@@ -9,7 +9,7 @@ checar_pacote() {
 configurar_vsftpd() {
   echo "Configurando o servidor FTP (vsftpd)..."
   
-  # Instalar vsftpd
+ 
   checar_pacote "vsftpd"
 
   # Backup da configuração original
@@ -27,21 +27,21 @@ chroot_local_user=YES
 local_root=/home/$FTP_USER/uploads
 EOF'
 
-  # Reiniciar o serviço do vsftpd
+ 
   sudo systemctl restart vsftpd
   echo "Servidor FTP (vsftpd) configurado e reiniciado."
 }
 
-# Função para configurar o diretório de uploads
+ 
 configurar_diretorio() {
   echo "Configurando diretório de uploads no servidor FTP..."
 
-  # Pergunta ao usuário pelo diretório de upload e usuário
+ 
   read -p "Digite o nome do usuário FTP: " FTP_USER
   read -p "Digite o diretório de uploads (padrão: /home/$FTP_USER/uploads): " DIR_UPLOAD
   DIR_UPLOAD=${DIR_UPLOAD:-"/home/$FTP_USER/uploads"}
 
-  # Cria o diretório, se não existir
+  
   sudo mkdir -p $DIR_UPLOAD
 
   # Dar permissões para o diretório
@@ -51,13 +51,13 @@ configurar_diretorio() {
   echo "Diretório de uploads configurado com sucesso em $DIR_UPLOAD"
 }
 
-# Função para configurar o cliente lftp
+#  configurar o cliente lftp
 configurar_cliente_lftp() {
   echo "Instalando o cliente FTP (lftp)..."
   checar_pacote "lftp"
 }
 
-# Função para transferir o arquivo via lftp
+#  transferir o arquivo via lftp
 transferir_arquivo() {
   # Perguntar ao usuário os dados de FTP e caminho do arquivo
   read -p "Digite o endereço do servidor FTP: " FTP_SERVER
@@ -72,14 +72,14 @@ transferir_arquivo() {
     exit 1
   fi
 
-  # Usar o lftp para transferir o arquivo
+
   lftp -u $FTP_USER,$FTP_PASS $FTP_SERVER << EOF
 cd $(dirname $ARQUIVO_REMOTO)
 put $ARQUIVO_LOCAL -o $(basename $ARQUIVO_REMOTO)
 bye
 EOF
 
-  # Verificar o código de saída do lftp
+
   if [ $? -eq 0 ]; then
     echo "Arquivo transferido com sucesso!"
   else
@@ -88,7 +88,6 @@ EOF
   fi
 }
 
-# Início do script
 echo "Este script irá configurar o FTP para você."
 
 # Perguntar ao usuário se ele quer configurar o servidor FTP
@@ -100,7 +99,7 @@ else
   echo "Servidor FTP não será configurado."
 fi
 
-# Perguntar ao usuário se ele quer configurar o cliente FTP
+
 read -p "Você deseja configurar o cliente FTP (lftp)? [s/n] " CONFIG_CLIENTE
 if [[ $CONFIG_CLIENTE == "s" || $CONFIG_CLIENTE == "S" ]]; then
   configurar_cliente_lftp
@@ -108,7 +107,7 @@ else
   echo "Cliente FTP não será configurado."
 fi
 
-# Perguntar se deseja transferir um arquivo via FTP
+
 read -p "Você deseja transferir um arquivo via FTP agora? [s/n] " TRANSFERIR
 if [[ $TRANSFERIR == "s" || $TRANSFERIR == "S" ]]; then
   transferir_arquivo
