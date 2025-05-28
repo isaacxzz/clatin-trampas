@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+SCRIPT_BACKUP="/home/iftm/contrab_backup.sh"
+
+# Caminho do arquivo de log do cron
+ARQUIVO_CRON_LOG="/home/iftm/backup_cron.log"
+
+
+
+
+# Com ele, você pode configurar o sistema para rodar scripts ou comandos sem precisar executar manualmente TODOS OS DIAS
+
+
+
+# o "contrab -" é para aplicar uma atualização no serviço contrab para ele atualizar o agendamento
+
+(crontab -l 2>/dev/null; echo "0 8 * * * $SCRIPT_BACKUP >> $ARQUIVO_CRON_LOG 2>&1") | crontab -
+
+
+
+echo " O backup foi agendado para ser executado todos os dias às 8:00 da manhã."
+echo " Os Logs de execução serão salvos em: $ARQUIVO_CRON_LOG"
