@@ -1,0 +1,51 @@
+#!/bin/bash
+
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Este script precisa ser executado como root."
+    exit 1
+fi
+
+
+echo "Atualizando o sistema e instalando net-tools..."
+apt update && apt upgrade -y
+apt install -y net-tools
+
+
+INTERFACE="eth0"  
+IP="192.168.1.100"   
+NETMASK="255.255.255.0"   
+GATEWAY="192.168.1.1"   
+DNS="8.8.8.8"   
+
+
+echo "Desabilitando o NetworkManager..."
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+
+
+echo "Configurando IP estático..."
+ifconfig $INTERFACE $IP netmask $NETMASK up
+
+
+echo "Configurando gateway..."
+route add default gw $GATEWAY $INTERFACE
+
+
+echo "Configurando DNS..."
+echo "nameserver $DNS" > /etc/resolv.conf
+
+echo "Configuração concluída!"
+echo "IP configurado: $IP"
+echo "Máscara de sub-rede: $NETMASK"
+echo "Gateway: $GATEWAY"
+echo "DNS: $DNS"
+echo "Interface: $INTERFACE"
+
+
+echo "Verificando as configurações de rede..."
+ifconfig $INTERFACE
+route -n
+cat /etc/resolv.conf
+
+echo "Rede configurada com sucesso!"
